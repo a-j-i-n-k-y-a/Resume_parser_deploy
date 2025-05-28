@@ -3,12 +3,6 @@ services:
     name: resume-parser
     env: python
     buildCommand: |
-      # Install Git LFS
-      apt-get update && apt-get install -y git-lfs
-      git lfs install
-      git lfs pull
-      
-      # Install Python dependencies
       pip install -r requirements.txt
       python -m spacy download en_core_web_sm
     startCommand: gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
