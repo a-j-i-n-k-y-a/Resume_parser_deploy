@@ -17,3 +17,4 @@ en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_
 #After installing the dependencies, don't forget to download the spaCy model:
 #python -m spacy download en_core_web_sm
 gunicorn==21.2.0
+requests==2.31.0
