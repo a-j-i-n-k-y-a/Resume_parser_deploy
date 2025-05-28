@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from typing import List
 import pandas as pd
 import os
-from app.models.resume_parser import ResumeParser
+from models.resume_parser import ResumeParser
 
 app = FastAPI()
 
