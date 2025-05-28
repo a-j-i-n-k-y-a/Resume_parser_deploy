@@ -5,11 +5,24 @@ import docx2txt
 import pandas as pd
 import unicodedata
 import pickle
+import requests 
 from typing import List, Dict
 from sklearn.metrics.pairwise import cosine_similarity
 
+
 class ResumeParser:
     def __init__(self):
+        # Define model URLs (replace with your actual Google Drive URLs)
+        MODEL_URLS = {
+            'spacy_model.pkl': 'https://drive.google.com/file/d/1xRm-nM1oMWcwxyQTgq8QXxNjOnIZ_WKV/view?usp=drive_link',
+            'ner_model.pkl': 'https://drive.google.com/file/d/16r84YclDTM6QpTHgFWfTQtKP4w3wGzP-/view?usp=drive_link',
+            'embed_model.pkl': 'https://drive.google.com/file/d/12y8pr1RLESDDFg1-b1E3IJxAn7vAplH4/view?usp=drive_link'
+        }
+        
+        # Download all models if they don't exist
+        for filename, url in MODEL_URLS.items():
+            self.download_model_if_needed(filename, url)
+        
         # Load models from pickle files
         with open('models/spacy_model.pkl', 'rb') as f:
             self.spacy_nlp = pickle.load(f)
@@ -20,7 +33,26 @@ class ResumeParser:
         with open('models/embed_model.pkl', 'rb') as f:
             self.embed_model = pickle.load(f)
 
-    # ... rest of the code remains the same ..
+    def download_model_if_needed(self, filename: str, url: str):
+        """Download model file if it doesn't exist"""
+        model_path = os.path.join('models', filename)
+        if not os.path.exists(model_path):
+            print(f"Downloading {filename}...")
+            os.makedirs('models', exist_ok=True)
+            
+            # For Google Drive URLs, we need to modify the URL to get direct download
+            if 'drive.google.com' in url:
+                file_id = url.split('/')[-2]
+                url = f'https://drive.google.com/uc?export=download&id={file_id}'
+            
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            
+            with open(model_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print(f"Downloaded {filename} successfully")
+
     def read_file_safely(self, file_content: bytes, file_extension: str) -> str:
         encodings = ['utf-8', 'cp1252', 'ISO-8859-1', 'latin-1']
         text = ""
